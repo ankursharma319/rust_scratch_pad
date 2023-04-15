@@ -2,6 +2,23 @@ use std::io;
 use rand::Rng;
 use std::cmp::Ordering;
 
+fn try_refs(s:&String) -> &String {
+    let s2 = String::from("hello");
+
+    let slice:&str = &s2[0..2];
+    println!("{}", slice);
+    return s;
+    // let mut s = String::from("  hello  ");
+    //
+    // let r1 = &s;
+    // let r2 = &s;
+    //
+    // // s.push_str("hello there");
+    //
+    // println!("{}, {}", r1, r2);
+    // return s;
+}
+
 fn main() {
     println!("Hello, world, guess the number!");
 
