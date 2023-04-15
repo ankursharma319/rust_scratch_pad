@@ -7,8 +7,14 @@ fn main() {
 
     let secret_num = rand::thread_rng().gen_range(1..=100);
     println!("The secret number is {}", secret_num);
-
+    if secret_num < 50 {
+        println!("Hint, go low");
+    } else {
+        println!("Hint, go high");
+    }
     println!("Type your guess");
+
+    // loop forever, until the break statement
     loop {
         let mut guess: String = String::new();
         io::stdin().read_line(&mut guess).expect("Failed to read from stdin");
