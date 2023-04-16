@@ -238,3 +238,19 @@ Marking an enum `pub` makes all the varients public too. But marking a struct `p
 
 `use` is nothing but a way to not have to namespace explicitly
 
+## Strings
+
+`String` type is mutable, growable, owned type and part of std library, while the `str&` is not mutable and for string literals and string slices and is part of the language core.
+
+`to_string` method which is available on any type that implements the `Display` trait can be used to convert to String.
+
+Can use `push_str` method which can be used to append to String. There is also the `+` operator which essentially calls the add function and the signature is `fn add(self, s: &str) -> String`, so the first arg is no longer valid after calling the add function.
+
+The compiler can coerce the &String argument into a &str.
+
+Accessing an index into a String with `[]` is not allowed because it would not be clear if we are asking for nth byte or nth utf8 u8 or u16 or u24 or u32 char. But indexing slices is allowed and it will return bytes. Slicing at a bad utf boundary will result in a runtime error.
+
+For iterating over Strings, use .chars() or .bytes() explicitly.
+
+Values can be moved into containers such as Hashmaps and vectors or references can be stored. If storing references, the lifetime of reference must be greater or equal to that of the container.
+
