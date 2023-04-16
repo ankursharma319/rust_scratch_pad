@@ -213,3 +213,28 @@ Another difference compared to c++ is that enums are allowed to have methods def
 
 Normally would use `match` to alter behaviour depending on value of enum.
 There is also an `if let` syntax which is less boilerplaty when we want to do something only if it matches one pattern.
+
+
+## Packages and crates
+
+A crate is the smallest amount of code that the Rust compiler considers at a time. Crates can contain modules, and the modules may be defined in other files that get compiled with the crate.
+
+Binary crates are executable programs with `fn main` & library crates are not executable.
+
+A package is a bundle of one or more crates. A package contains Cargo.toml file which describes how to build those crates. A package can contain as many binary crates as you like, but at most only one library crate. By default, cargo looks at `src/main.rs` for binary crate, `src/lib.rs` for library crate and `src/bin/` for additional binary crates.
+
+## Modules
+
+In the root crate file, we can declare modules using `mod ModuleName;` or `pub mod ModuleName` for making it public.
+The implentation of the module must be provided either inline in the root crate file or by a matching file at `src/ModuleName.rs` or `src/ModuleName/mod.rs`.
+
+So modules are basically equivalent to files.
+
+Once a module is part of your crate, you can refer to code in that module from anywhere else in that same crate, as long as the privacy rules allow. For e.g. using an absolute path `crates::ModuleName::SomeFunction` or relative paths like `ModuleName::SomeFunction`
+
+Items in a parent module can’t use the private items inside child modules, but items in child and sibling modules can use all items in their ancestor or sibling modules.
+
+Marking an enum `pub` makes all the varients public too. But marking a struct `pub` does not. You also need to specifically mark specific fields `pub` and can leave some fields private.
+
+`use` is nothing but a way to not have to namespace explicitly
+

@@ -2,11 +2,18 @@ use std::io;
 use rand::Rng;
 use std::cmp::Ordering;
 
-fn try_refs(s:&String) -> &String {
-    let s2 = String::from("hello");
+pub mod garden;
 
-    let slice:&str = &s2[0..2];
-    println!("{}", slice);
+fn demo(s:&String) -> &String {
+    let s2 = String::from("hello");
+    let _slice:&str = &s2[0..2];
+    // println!("{}", slice);
+    garden::pluck_vegtable();
+    garden::vegatables::sweeten();
+    // below is error because fruits is private module
+    // garden::fruits::sweeten();
+    // the below is error because its a private function
+    // garden::corrupt_vegetable();
     return s;
     // let mut s = String::from("  hello  ");
     //
@@ -34,6 +41,7 @@ fn main() {
     // loop forever, until the break statement
     loop {
         let mut guess: String = String::new();
+        demo(&guess);
         io::stdin().read_line(&mut guess).expect("Failed to read from stdin");
 
         let guess:u32 = match guess.trim().parse() {
