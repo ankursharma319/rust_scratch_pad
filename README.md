@@ -150,3 +150,48 @@ let s = String::from("hello");
 let slice:&str = &s[0..2];
 ```
 
+## Structs
+
+`struct Color(i32, i32, i32);` is a tuple struct where fields are accessed as `color.1`, `color.2` etc.
+
+Creating struct from fields in another struct may move it or copy it depending on if the fields have Copy trait or not.
+
+e.g.
+
+```rust
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
+let user1 = User {
+    active: true,
+    username: String::from("someusername123"),
+    email: String::from("someone@example.com"),
+    sign_in_count: 1,
+};
+
+let user2 = User {
+    email: String::from("another@example.com"),
+    ..user1
+};
+```
+
+So the email field will not be moved, username field will be moved, and active & sign_in_count will be copied.
+
+Unit structs behave similar to empty tuples `()`. To define a unit struct: `struct AlwaysEqual;`
+
+In order to print structs using `println!("{:#?}")` or `!dbg` macro, it must implement Debug trait. There is a default impl which we can opt in to by using `#[derive(Debug)]` above the struct declaration.
+
+Methods can be added to structs in impl blocks. The first argument must be `self`, `&self` or `&mut self`. If the first argument is not self, its kinda like a static method in c++.
+
+```rust
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+```
+
+`&self` is actually short for `self: &Self` and `Self` is an alias for the type that the impl block is for. `&self` is for reading the data in the struct but not mutating it, `&mut self` is for reading and mutating the data in the struct and `self` is for taking the ownership of the struct instance and is is used rarely, when the method transforms self into something else and you want to prevent the caller from using the original instance after the transformation.
