@@ -195,3 +195,21 @@ impl Rectangle {
 ```
 
 `&self` is actually short for `self: &Self` and `Self` is an alias for the type that the impl block is for. `&self` is for reading the data in the struct but not mutating it, `&mut self` is for reading and mutating the data in the struct and `self` is for taking the ownership of the struct instance and is is used rarely, when the method transforms self into something else and you want to prevent the caller from using the original instance after the transformation.
+
+## Enums
+
+It is possible to attach data to enums. They actually behave like variants and data can be attached to them. e.g.
+
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+```
+
+Another difference compared to c++ is that enums are allowed to have methods defined for them, just like structs.
+
+Normally would use `match` to alter behaviour depending on value of enum.
+There is also an `if let` syntax which is less boilerplaty when we want to do something only if it matches one pattern.
