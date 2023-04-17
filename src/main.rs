@@ -4,6 +4,32 @@ use std::cmp::Ordering;
 
 pub mod garden;
 
+// put unit tests in the same file as src code and usually under a separate module with
+// this annotation to signal that this module should only be included in test binary
+// for integeration tests, put them in separate files in tests/ directory
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn my_test1() {
+        assert_eq!(2, 2);
+    }
+}
+
+#[test]
+fn another() {
+    // panic!("Make this test fail");
+}
+
+#[test]
+fn it_works() -> Result<(), String> {
+    if 2 + 2 == 4 {
+        Ok(())
+    } else {
+        Err(String::from("two plus two does not equal four"))
+    }
+}
+
+
 fn demo(s:&String) -> &String {
     let s2 = String::from("hello");
     let _slice:&str = &s2[0..2];
