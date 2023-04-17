@@ -254,3 +254,10 @@ For iterating over Strings, use .chars() or .bytes() explicitly.
 
 Values can be moved into containers such as Hashmaps and vectors or references can be stored. If storing references, the lifetime of reference must be greater or equal to that of the container.
 
+## Errors
+
+For recoverable errors, Rust uses `Result<T, E>` and a macro called `panic!` for unrecoverable errors.
+For returning the error type from a function, there is `?` operator which short circuits if the result was an error and returns the error. Can make things less verbose than match statements.
+
+`?` operator is allowed in a function that returns `Result`, `Option`, or another type that implements `FromResidual`.
+
