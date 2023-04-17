@@ -261,3 +261,58 @@ For returning the error type from a function, there is `?` operator which short 
 
 `?` operator is allowed in a function that returns `Result`, `Option`, or another type that implements `FromResidual`.
 
+## Generics
+
+Compile time things, generics are turned into specific impls in compiled code, just like c++
+E.g.:
+
+```rust
+// only accepts T which implement the PartialOrd trait
+fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> &T {...}
+```
+
+## Traits
+
+Similar to interfaces. But after implementing traits for a type, must bring the traits and the types into the scope. So that means that a trait is not implemented permanently like it an interface would be implemented in c++
+
+We can implement a trait on a type only if at least one of the trait or the type is local to our crate.
+Can return types which implement a specific trait or multiple traits (using `+` syntax).
+
+Can also conditionally implement additional methods on our types based on traits of the args to the structs or the methods.
+`ToString` is an example of a trait with a "blanket implementation" because it essentially has a single implementation that applies to all types which have `Display` trait.
+
+## Lifetimes
+
+Most of the time, lifetimes of references are implicit. Sometimes, we must annotate lifetimes when the lifetimes of references could be related in a few different way.
+
+In the below code, it will be an compiler error if we dont specify the lifetime relation
+
+```rust
+// ' is used to start a lifetime annotation, a is just a label we chose
+// the concrete lifetime that is substituted for 'a is the part of the scope of x that overlaps with the scope of y
+// 'a on the return value signifies that the lifetime of returned value will be smaller of the
+// the lifetimes of the passed parameters
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+```
+
+
+When we specify the lifetime parameters in this function signature, we’re not changing the lifetimes of any values passed in or returned. Rather, we’re specifying that the borrow checker should reject any values that don’t adhere to these constraints.
+
+If the function takes in only one arg and returns reference of the same type, then we dont need to manually specify this lifetime annotation beause rust compiler will do it for us since its pretty obvious that the lifetime of the return value will be same as that of the single arg.
+
+Also a similar rule exists for methods which take Self as the first arg. The lifetime of returned value is assumed to be same as that of self.
+
+Lifetime annotations must also be used if storing references in structs.
+
+```rust
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+```
+

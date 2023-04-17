@@ -14,6 +14,16 @@ fn demo(s:&String) -> &String {
     // garden::fruits::sweeten();
     // the below is error because its a private function
     // garden::corrupt_vegetable();
+
+    let _my_article = garden::NewsArticle {
+        headline: String::from(""),
+        location: String::from(""),
+        author: String::from(""),
+        content: String::from(""),
+    };
+    // below should be a compile time error because didn not bring the trait into scope
+    // println!("{}", _my_article.summarize());
+
     return s;
     // let mut s = String::from("  hello  ");
     //
