@@ -5,7 +5,8 @@
 ```bash
 nix develop
 cargo build
-cargo run
+cargo run --bin rust_scratch_pad
+IGNORE_CASE=1 cargo run --bin minigrep -- hello ./README.md
 cargo test
 ```
 
