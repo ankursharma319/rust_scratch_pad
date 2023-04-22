@@ -318,3 +318,34 @@ struct ImportantExcerpt<'a> {
 }
 ```
 
+## Closures
+
+E.g. -
+
+```rust
+fn  add_one_v1   (x: u32) -> u32 { x + 1 }
+let add_one_v2 = |x: u32| -> u32 { x + 1 };`
+```
+
+It captures by immutable reference, mutable reference or ownership automatically depending on how the closure uses the captured variable.
+If want to force capture by ownership, can use the `move` keyword like so:
+
+```rust
+use std::thread;
+
+fn main() {
+    let list = vec![1, 2, 3];
+    thread::spawn(move || println!("From thread: {:?}", list)).join().unwrap();
+}
+```
+
+If what we want to do doesn’t require capturing a value from the environment, we can use the name of a function rather than a closure.
+
+The way a closure captures and handles values from the environment affects which traits the closure implements, and traits are how functions and structs can specify what kinds of closures they can use. For e.g. `FnOnce() -> T`, which means F must be able to be called once, take no arguments, and return a T
+
+FnOnce trait - a closure that can be called atleast once - applies to all closures - if a closures body moves value out (gives ownership to something else), it can only be called once and will have no other Fn related trait other than this one
+
+FnMut trait - dont move the values out but might mutate the values - can be called multipe times
+
+Fn trait - dont move captured values out and dont mutate - can be called multiples times - also can be called concurrently
+
