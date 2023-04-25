@@ -26,6 +26,16 @@ impl Config {
     }
 }
 
+///
+/// # Example
+///
+/// This doc example will not only be shown nicely in the html docs of the crate
+/// but will also be run as part of cargo test. Insane!
+///
+/// ```rust
+/// let config = rust_scratch_pad::Config { query: "hello".to_string(), file_path: "./README.md".to_string(), ignore_case: true};
+/// assert!(rust_scratch_pad::run(config).is_ok());
+/// ```
 pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     let contents = std::fs::read_to_string(config.file_path)?;
     let lines : std::vec::Vec<&str> = if config.ignore_case {
