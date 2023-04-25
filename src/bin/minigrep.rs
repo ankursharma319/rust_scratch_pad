@@ -1,8 +1,7 @@
 use rust_scratch_pad::{Config, run};
 
 fn main() {
-    let args: std::vec::Vec<String> = std::env::args().collect();
-    let config = Config::build(&args).unwrap_or_else(|err| {
+    let config = Config::build(std::env::args()).unwrap_or_else(|err| {
         eprintln!("Problem parsing args: {}", err);
         std::process::exit(1);
     });

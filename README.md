@@ -349,3 +349,21 @@ FnMut trait - dont move the values out but might mutate the values - can be call
 
 Fn trait - dont move captured values out and dont mutate - can be called multiples times - also can be called concurrently
 
+## Iterators
+
+`vec.iter()` returns a type which has the `Iterator` trait implemented. There is also `into_iter()` and `iter_mut()` which instead of const ref, return ownership of items and mutable reference respectively.
+
+```rust
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+    // methods with default implementations elided
+}
+```
+
+Calling `next()` mutates the iterator itself and eventually it will run out of items.
+
+The `Iterator` definition above hides the other methods which have default implementations. These go into 2 categories: those which consume the iterator by calling next (e.g. - `sum()`) and those which return a new iterator based on self (e.g. `map()`).
+
+`collect()` method also consumes an iterator, it basically produces a new collection.
+
