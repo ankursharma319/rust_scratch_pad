@@ -18,6 +18,14 @@ mod tests {
 #[test]
 fn another() {
     // panic!("Make this test fail");
+    struct MyStruct {
+        x: i32,
+        y: f64,
+    }
+    let my = MyStruct { x: 23, y: 23.0};
+    let a : &f64 = &my.y;
+    let b = my.x as f64;
+    assert_eq!(*a, b);
 }
 
 #[test]

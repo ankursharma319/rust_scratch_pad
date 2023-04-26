@@ -367,3 +367,29 @@ The `Iterator` definition above hides the other methods which have default imple
 
 `collect()` method also consumes an iterator, it basically produces a new collection.
 
+## Smart pointers
+
+`Box<T>` types are those whose data is allocated on heap instead of stack. What remains on stack is pointer to the heap data. Useful when data size is not known at compile time, large amount of data. When a `Box<T>` value goes out of scope, the heap data that the box is pointing to is cleaned up as well because of the `Drop` trait implementation.
+
+Can allow recursive types because otherwise the size of struct needed in struct will not be possible to compute .
+
+References in rust can be dereferenced using the * operator, just like in C. For our custom types (for e.g. if we were implementing a smart pointer like Box), we can implement the `Deref` trait to make it dereferenceable and specify what dereferencing does. (implement `DerefMut` trait to override the * operator on mutable references). `&T` will return a `&U` when `T: Deref<Target=U>`
+
+Deref coercion converts a reference to a type that implements the `Deref` trait into a reference to another type. e.g. - `&String` to `&str` because `String` implements the `Deref` trait such that it returns `&str`.
+
+`Drop` trait can be used to specify what should happen when a value goes out of scope.
+
+`Rc<T>` (short for reference counting) is useful for when we want to have multiple owners. `Rc::new` to move some data into this pointer and `Rc::clone` to return a new instance of `Rc` and increase the reference count. `Rc` only allows immutable access to the data.
+
+`RefCell<T>` is a lot like `Box<T>`except you can cheat and mutate data even through a immutable reference to RefCell. Interior mutability is a design pattern in Rust that allows you to mutate data (using some unsafe code) even when there are immutable references to that data; normally, this action is disallowed by the borrowing rules. RefCell checks our borrowing rules at runtime instead of compile time.
+
+E.g. can mutate an object internally in a struct even though only have a immutable reference to it.
+
+RefCell has methods `borrow` and `borrow_mut` which return `Ref<T>` and `RefMut<T>` respectively.
+
+For mutating data in something like shared_ptrs, we can use `Rc<T>` together with `RefCell<T>`. If you have an Rc<T> that holds a RefCell<T>, you can get a value that can have multiple owners and that you can mutate.
+
+Rc, refcell are all only suitable for single threaded scenarios.
+
+You can also create a weak reference to the value within an `Rc<T>` instance by calling `Rc::downgrade` and passing a reference to the `Rc<T>`. Strong references are how you can share ownership of an `Rc<T>` instance. Weak references don’t express an ownership relationship, and their count doesn’t affect when an `Rc<T>` instance is cleaned up.
+
