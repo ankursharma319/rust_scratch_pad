@@ -6,6 +6,7 @@
 nix develop
 cargo build
 cargo run --bin rust_scratch_pad
+cargo run --bin multithread
 IGNORE_CASE=1 cargo run --bin minigrep -- hello ./README.md
 cargo test
 ```
@@ -393,3 +394,40 @@ Rc, refcell are all only suitable for single threaded scenarios.
 
 You can also create a weak reference to the value within an `Rc<T>` instance by calling `Rc::downgrade` and passing a reference to the `Rc<T>`. Strong references are how you can share ownership of an `Rc<T>` instance. Weak references don’t express an ownership relationship, and their count doesn’t affect when an `Rc<T>` instance is cleaned up.
 
+## Concurrency
+
+Can spawn a thread using
+
+```rust
+let v = vec![1, 2, 3];
+let handle = thread::spawn(move || {
+    println!("Here's a vector: {:?}", v);
+});
+
+handle.join().unwrap();
+```
+
+Note that we moved v into the new thread using `move ||` syntax.
+
+Its better to communicate between threads via message passing rather than using shared memory. Example of creating a multiple producer single consumer channel:
+
+```rust
+let (tx, rx) = mpsc::channel();
+
+// for multiple producers, can clone tx and move that into more threads
+thread::spawn(move || {
+    let val = String::from("hi");
+    tx.send(val).unwrap();
+});
+
+// recv blocks until got msg, try_recv wont block
+let received = rx.recv().unwrap();
+println!("Got: {}", received);
+```
+
+For shared memory access, there is mutexes `std::sync::Mutex<T>`.
+In order to send data into the lambda for `thread::spawn`, the data must implement `Send` or `Sync` traits.
+Send trait indicates that ownership of values of the type implementing Send can be transferred between threads. Most are, except `Rc`.
+Sync trait indicates that it is safe for the type implementing Sync to be referenced from multiple threads. Most are, but some like `Rc`, `RefCell` are not. `Mutex` implements Sync.
+
+`Arc<T>` (atomic reference counting) is like `Rc<T>` but thread safe (well the increment and decrement of the reference counters is thread safe, not necessarily operations on thing it points to) and can be moved into other threads.
