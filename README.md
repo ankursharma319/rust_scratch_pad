@@ -431,3 +431,11 @@ Send trait indicates that ownership of values of the type implementing Send can 
 Sync trait indicates that it is safe for the type implementing Sync to be referenced from multiple threads. Most are, but some like `Rc`, `RefCell` are not. `Mutex` implements Sync.
 
 `Arc<T>` (atomic reference counting) is like `Rc<T>` but thread safe (well the increment and decrement of the reference counters is thread safe, not necessarily operations on thing it points to) and can be moved into other threads.
+
+## Trait objects
+
+A trait object points to both an instance of a type implementing our specified trait and a table used to look up trait methods on that type at runtime. Therefore trait objects must be specified as pointers or smart pointers and with `dyn` keyword. E.g. `Box<dyn Draw>` where `Draw` is a trait that we want the arg to have implemented. A slight runtime cost compared to pure compile time generics for e.g.
+
+Suppose we want to have a container (vector) which can contain multiple types. Can have a container of enums or have a container of these trait objects. If we already have all the types which container can contain in our crate, enums maybe better. But sometimes, we want users of our library to add their own types. Trait objects useful in those cases.
+
+Doing this `struct Screen<T: Draw> { components: Vec<T> }` would have limited T to be a single type.
