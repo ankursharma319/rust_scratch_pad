@@ -439,3 +439,53 @@ A trait object points to both an instance of a type implementing our specified t
 Suppose we want to have a container (vector) which can contain multiple types. Can have a container of enums or have a container of these trait objects. If we already have all the types which container can contain in our crate, enums maybe better. But sometimes, we want users of our library to add their own types. Trait objects useful in those cases.
 
 Doing this `struct Screen<T: Draw> { components: Vec<T> }` would have limited T to be a single type.
+
+## Unsafe code
+
+Allow programmer to write some code that would otherwise not be safe with full rust safety.
+
+- Dereference a pointer
+- Calling unsafe function or method, including functions in extern languages such as C
+- Accessing or modifying a mutable static variable, including functions in extern languages such as C
+    - using immutable static variables is safe, but mutable static variables are unsafe
+- implement an unsafe trait
+- work with union types (usually when working with a C library interface which likes using unions)
+
+## Types
+
+Can create "newtypes" like this `struct Wrapper(Vec<String>);`. Can create type aliases like this `type Kilometers = i32;`.
+
+For a function that will never return (maybe bcoz it will cause a crash or its a forever loop), there is the never type:
+
+```rust
+fn bar() -> ! {
+    // --snip--
+}
+```
+
+`str` is actually a DST - dynamically sized type.
+So although a `&T` is a single value that stores the memory address of where the `T` is located, a `&str` is two values: the address of the `str` and its length.
+
+`Sized` trait is used to determine whether or not the size of a struct is known at compile time and is automatically/implicitly inserted in most places. E.g.
+
+```rust
+fn generic<T>(t: T) {
+    // --snip--
+}
+
+// is actually treated as though we had written this:
+
+fn generic<T: Sized>(t: T) {
+    // --snip--
+}
+```
+
+The `fn` type is called a function pointer. Not to be confused with `Fn` closure trait. E.g.:
+
+```rust
+fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
+    f(arg) + f(arg)
+}
+```
+
+`fn` implements all three of `FnOnce`, `FnMut` and `Fn`. Normally, we want to accept closures, so that the user can choose to pass in a function pointer or a closure. But if interfacing with C code, then would need to accept function pointers only.
