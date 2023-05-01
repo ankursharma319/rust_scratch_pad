@@ -489,3 +489,33 @@ fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
 ```
 
 `fn` implements all three of `FnOnce`, `FnMut` and `Fn`. Normally, we want to accept closures, so that the user can choose to pass in a function pointer or a closure. But if interfacing with C code, then would need to accept function pointers only.
+
+## Macros
+
+Metaprogramming, before the real compilation. Macros can take a variable number of parameters. Also, macros must be brought into scope (or defined locally) in order to be used, unlike functions which can be called directly.
+
+```rust
+// shows how vec! macro might be implemented
+// macro_export : this macro should be made available when this crate is brought into scope.
+// macro_rules! is general syntax name to define a macro
+// vec is the name of the macro
+#[macro_export]
+macro_rules! vec {
+    // Like a match expression, if expression matches this pattern
+    // the following code will be emitted
+    // $ to declare a variable that will contain the code matching the pattern
+    // $x:expr matches any expression and gives it name x
+    // like in regex, * means zero or more of whatever precedes the *
+    ( $( $x:expr ),* ) => {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            temp_vec
+        }
+    };
+}
+```
+
+There are also procedural macros which are a bit like function annotations in python.

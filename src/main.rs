@@ -2,6 +2,9 @@ use std::io;
 use rand::Rng;
 use std::cmp::Ordering;
 
+use rust_scratch_pad::Cow;
+use cow_macro_derive::Cow;
+
 pub mod garden;
 
 // put unit tests in the same file as src code and usually under a separate module with
@@ -37,6 +40,25 @@ fn it_works() -> Result<(), String> {
     }
 }
 
+
+struct Pancake;
+
+impl Cow for Pancake {
+    fn moo(&self) -> String {
+        return String::from("mooooo!!!");
+    }
+}
+
+#[derive(Cow)]
+struct Pizza;
+
+#[test]
+fn testing_custom_trait() {
+    let pc = Pancake {};
+    assert_eq!("mooooo!!!", &pc.moo());
+    let pz = Pizza {};
+    assert_eq!("Moo from Pizza", &pz.moo());
+}
 
 fn demo(s:&String) -> &String {
     let s2 = String::from("hello");

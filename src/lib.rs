@@ -1,4 +1,9 @@
 
+pub trait Cow {
+    // add code here
+    fn moo(&self) -> String;
+}
+
 pub struct Config {
     pub query: String,
     pub file_path: String,
