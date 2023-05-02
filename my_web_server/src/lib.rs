@@ -6,7 +6,7 @@ use std::sync::Mutex;
 
 struct Worker {
     id: usize,
-    handle: thread::JoinHandle<()>,
+    handle: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
@@ -21,12 +21,20 @@ impl Worker {
                 // let statement
                 // let receiver_raw: &Receiver<Job> = &*receiver.lock().expect("failed to acquire lock");
                 // let job = receiver_raw.recv().expect("didnt receive message successfully in thread via the channel");
-                let job = receiver.lock().expect("failed to acquire lock").recv().expect("didnt receive message successfully in thread via the channel");
-                println!("executing job on worker#{}", id);
-                job();
+                let job = receiver.lock().expect("failed to acquire lock").recv();
+                match job {
+                    Ok(j) => {
+                        println!("executing job on worker#{}", id);
+                        j();
+                    },
+                    Err(_) => {
+                        println!("worker#{} disconnected, shutting down thread", id);
+                        return;
+                    }
+                }
             }
         });
-        Worker {id, handle}
+        Worker {id, handle: Option::Some(handle)}
     }
 }
 
@@ -34,7 +42,7 @@ type Job = Box<dyn FnOnce() + Send + 'static>;
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Job>
+    sender: Option<mpsc::Sender<Job>>,
 }
 
 impl ThreadPool {
@@ -47,7 +55,7 @@ impl ThreadPool {
         for i in 0..workers.capacity() {
             workers.push(Worker::new(i, Arc::clone(&receiver_protected)));
         }
-        ThreadPool { workers, sender }
+        ThreadPool { workers, sender: Option::Some(sender) }
     }
 
     pub fn execute<F>(&self, f: F)
@@ -57,6 +65,22 @@ impl ThreadPool {
     {
         println!("executing function in thread pool");
         let func = Box::new(f);
-        self.sender.send(func).expect("Couldnt send job successfully to a worker thread");
+
+        if let Some(sender) = &self.sender {
+            sender.send(func).expect("Couldnt send job successfully to a worker thread");
+        }
+    }
+}
+
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        // dropping the sender channel will make all future .recv calls inside threads
+        drop(self.sender.take());
+        for worker in &mut self.workers {
+            println!("Shutting down worker {}", worker.id);
+            if let Some(handle) = worker.handle.take() {
+                handle.join().unwrap();
+            }
+        }
     }
 }

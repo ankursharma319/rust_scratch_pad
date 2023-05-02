@@ -9,13 +9,15 @@ fn main() {
     let listener = TcpListener::bind(("localhost",7878)).expect("Failed to bind tcp socket for listening");
     println!("Hello, world!");
     let thread_pool = ThreadPool::new(3);
-    for connection_stream in listener.incoming() {
+    // automatically shut down server after 2 requests
+    for connection_stream in listener.incoming().take(2) {
         let stream = connection_stream.expect("Failed to connect to socket");
         println!("Connection established!");
         thread_pool.execute(|| {
             handle_connection(stream);
         });
     }
+    println!("Shutting down");
 }
 
 fn handle_connection(mut stream: TcpStream) {
