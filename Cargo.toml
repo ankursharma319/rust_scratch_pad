@@ -9,4 +9,5 @@ license = "MIT"
 
 [dependencies]
 rand = "^0.8.5"
+futures = "0.3"
 cow_macro_derive = { path = "./cow_macro_derive/" }

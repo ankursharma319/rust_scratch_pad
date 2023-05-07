@@ -519,3 +519,26 @@ macro_rules! vec {
 ```
 
 There are also procedural macros which are a bit like function annotations in python.
+
+## Async
+
+Other than using threads explicitly like shown above, can also use async, especially for io bound tasks because there will be less overhead.
+Probably
+
+No heap allocations and dynamic dispatch needed for async - low cost.
+
+Need to chose an async runtime from community implementations.  An async runtime uses a small amount of (expensive) threads to handle a large amount of (cheap) tasks.
+
+No extra threads are created for running the two downloads below:
+```rust
+async fn get_two_sites_async() {
+    // Create two different "futures" which, when run to completion,
+    // will asynchronously download the webpages.
+    let future_one = download_async("https://www.foo.com");
+    let future_two = download_async("https://www.bar.com");
+
+    // Run both futures to completion at the same time.
+    join!(future_one, future_two);
+}
+```
+
