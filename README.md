@@ -325,7 +325,7 @@ E.g. -
 
 ```rust
 fn  add_one_v1   (x: u32) -> u32 { x + 1 }
-let add_one_v2 = |x: u32| -> u32 { x + 1 };`
+let add_one_v2 = |x: u32| -> u32 { x + 1 };
 ```
 
 It captures by immutable reference, mutable reference or ownership automatically depending on how the closure uses the captured variable.
@@ -523,13 +523,13 @@ There are also procedural macros which are a bit like function annotations in py
 ## Async
 
 Other than using threads explicitly like shown above, can also use async, especially for io bound tasks because there will be less overhead.
-Probably
 
 No heap allocations and dynamic dispatch needed for async - low cost.
 
 Need to chose an async runtime from community implementations.  An async runtime uses a small amount of (expensive) threads to handle a large amount of (cheap) tasks.
 
 No extra threads are created for running the two downloads below:
+
 ```rust
 async fn get_two_sites_async() {
     // Create two different "futures" which, when run to completion,
@@ -541,4 +541,65 @@ async fn get_two_sites_async() {
     join!(future_one, future_two);
 }
 ```
+
+Async in rust is a bit different from javascript. The runtime can be switched and options are community provided. The runtime gets embedded into the binary executable. Can think of them kind of like green threads or event loop. Some runtimes are multithreaded and can execute async tasks on real multiple threads.
+
+async functions generate code which return a future. Future is a trait like this:
+
+```rust
+trait Future {
+    type Output;
+    fn poll(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Self::Output>;
+}
+```
+
+`poll` is called by the executor. Typically, an executor will poll a future once to start off. If the future is not "done", the poll implementation can arrange for the `cx.waker()` to be called when the future does make progress. Once the future indicates they are ready to make progress by calling wake function (see below), executor will place it back into a queue and `poll` will be called again, repeating until the Future has completed.
+
+`std::task::Context` contains a member function object to wake when the future actually makes progress in future. The type of that function wrapping object is `std::task::Waker`.
+
+This wake function is essentially provided by the executor.
+
+```rust
+// `foo()` returns a type that implements `Future<Output = u8>`.
+// `foo().await` will result in a value of type `u8`.
+async fn foo() -> u8 { 5 }
+
+fn bar() -> impl Future<Output = u8> {
+    // This `async` block results in a type that implements
+    // `Future<Output = u8>`.
+    async {
+        let x: u8 = foo().await;
+        x + 5
+    }
+}
+```
+
+There is also async move blocks to move values into async block, just like closures.
+
+when using multithreaded executors, Future may move between threads when awaited, so variables used in async blocks should implement Send trait (and references Sync trait).
+
+Also, use the Mutex in futures::lock rather than the one from std::sync to avoid deadlocks.
+std::sync lock will block the current thread instead of yielding the execution of the current future.
+
+https://users.rust-lang.org/t/std-mutex-vs-futures-mutex-vs-futures-lock-mutex-for-async/41710/3
+
+If the code compiles without a mutex, then it should be good unless you break something with unsafe code.
+
+Pinning gurantees that an object will live at the same memory adress throughout its life. There is a whole chapter on Pinning which I skipped.
+
+The Stream trait is similar to Future but can yield multiple values before completing, similar to the Iterator trait from the standard library
+
+`await` waits for a future to complete
+`join!`: waits for futures to all complete
+`select!`: waits for one of several futures to complete
+Spawning: creates a top-level task which ambiently runs a future to completion
+
+Reactors provide subscription mechanisms for external events, like async I/O, interprocess communication, and timers.
+
+`futures` crate has its own executor, but not its own reactor, so it does not support execution of async I/O or timer futures. For this reason, it's not considered a full runtime.
+
+tokio, async-std and smol are the common runtimes
 

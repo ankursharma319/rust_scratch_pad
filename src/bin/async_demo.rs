@@ -1,5 +1,4 @@
-use futures::executor::block_on;
-
+use futures::{executor::block_on, Future};
 
 fn main() {
     let future = some_fun();
@@ -14,16 +13,17 @@ async fn drum() {
     println!("Drumming!");
 }
 
-async fn dance() {
+async fn dance() -> i32 {
     println!("Start dancing!");
     let fut = sing();
-    // Unlike block_on, await doesn't block the current thread,
-    // but instead asynchronously waits for the future to complete
-    fut.await;
-    drum().await;
+    futures::join!(fut, drum());
     println!("Finished dancing!");
+    return 2;
 }
 async fn some_fun() {
     println!("Hello world!");
-    dance().await;
+    // Unlike block_on, await doesn't block the current thread,
+    // but instead asynchronously waits for the future to complete
+    let res: i32 = dance().await;
+    println!("res = {}", res);
 }
