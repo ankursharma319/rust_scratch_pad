@@ -1,6 +1,7 @@
 
 use tokio::net::{TcpListener, TcpStream};
 use std::hash::{Hash,Hasher};
+
 //
 //
 // cargo install mini-redis --root /Users/ankurs4/src/rust_scratch_pad/tokio_demo/_build
@@ -39,7 +40,7 @@ async fn main() {
 }
 
 async fn process(socket: TcpStream, db: ShardedDB) {
-    let mut redis_connection = mini_redis::Connection::new(socket);
+    let mut redis_connection = tokio_demo::connection::Connection::new(socket);
 
     while let Some(frame) = redis_connection.read_frame().await.unwrap() {
         println!("Got input frame = {:?}", frame);
